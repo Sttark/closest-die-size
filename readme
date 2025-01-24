@@ -1,1 +1,42 @@
-readme
+Here is the basis of what this code does. 
+
+NOTE: sizes increase by 1/8 increments in all Length, width, and Height.  
+
+The results from each filter are displayed in the order in which the filters run, so the sizes found by the last filter run are at the very bottom of the list. 
+
+Filter 1.1: 
+Lengths and Widths equal to the user's input and Heights up to 1" larger than the user's input.
+
+FIlter 1.2:  
+Lengths one size larger than user input (next 1/8 inch size up). 
+
+Filter 1.3:
+Widths one size larger than user input. (1/8 inch size up).
+
+Filter 1.4:
+Lengths two size larger than user input (1/4 inch up)
+
+Filter 1.5:
+Widths two size larger than user input (1/4 inch up)
+
+Filter 1.6:
+Lengths three size larger than user input (3/8 inch up)
+
+Filter 1.7:
+Widths three size larger than user input (3/8 inch up)
+
+If 10 results have not been found yet for the shape being run, expand Depth to 2" larger and re-run filters #1.2 through #1.7 until 10 results have been found. 
+
+
+For smaller sizes for each shape:
+Filter 2.1: 
+Lengths one size smaller than user input. (1/8 inch size down). 
+
+Filter 2.2:
+Widths one size smaller than user input. (1/8 inch size down).
+
+Filter 2.3:
+Lengths two sizes smaller than user input (1/4 inch down)
+
+Filter 2.4:
+Widths two size smaller than user input (1/4 inch down)
