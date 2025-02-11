@@ -30,13 +30,15 @@ If 10 results have not been found yet for the shape being run, expand Depth to 2
 
 For smaller sizes for each shape:
 Filter 2.1: 
-Lengths one size smaller than user input. (1/8 inch size down). 
+Lengths = to user input & Widths 1/8 inch size down
 
-Filter 2.2:
-Widths one size smaller than user input. (1/8 inch size down).
+Filter 2.2
+Length & Width 1/8 inch size down.
 
 Filter 2.3:
-Lengths two sizes smaller than user input (1/4 inch down)
+Lengths 1/8 inch size down & Widths 1/4 inch size down
 
 Filter 2.4:
-Widths two size smaller than user input (1/4 inch down)
+Length & Width 1/4 inch size down.
+
+Note: For smaller sizes, if less than 2 results are found using the exact depth input, the system will expand the depth range up to 2" larger than the input depth and rerun filters 2.1 through 2.4 until 2 results are found.

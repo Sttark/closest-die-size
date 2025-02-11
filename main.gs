@@ -55,22 +55,86 @@ function filterDieSizes() {
     // Create a Set of unique identifiers for previous results to enable fast lookups
     const previousIds = new Set(previousResults.map(row => row[ID_INDEX]));
 
-    var filterSequence = [
-      [0, 0],
-      [0.125, 0], [0.125, 0.125],
-      [0.25, 0.125], [0.25, 0.25],
-      [0.375, 0.25], [0.375, 0.375]
-    ];
-    
-    filterSequence.forEach(step => {
-      let nextLength = findNextSize(lengthInput, reverse ? -step[0] / 0.125 : step[0] / 0.125);
-      let nextWidth = findNextSize(widthInput, reverse ? -step[1] / 0.125 : step[1] / 0.125);
+    function applyFilters(depthRange) {
+      var results = [];
+      var foundIds = new Set(); // Track IDs we've already found
+      var filterSequence;
       
-      results = results.concat(filterResults(data, 
-        l => l === nextLength,
-        w => w === nextWidth,
-        d => reverse ? d === depthInput : d >= depthInput && d <= expandDepth));
-    });
+      if (reverse) {
+        // Filters 2.1-2.4 for smaller sizes
+        filterSequence = [
+          [0, 0.125],     // 2.1: Length = input, Width = input - 1/8"
+          [0.125, 0.125], // 2.2: Length = input - 1/8", Width = input - 1/8"
+          [0.125, 0.25],  // 2.3: Length = input - 1/8", Width = input - 1/4"
+          [0.25, 0.25]    // 2.4: Length = input - 1/4", Width = input - 1/4"
+        ];
+      } else {
+        filterSequence = [
+          [0, 0],
+          [0.125, 0], [0.125, 0.125],
+          [0.25, 0.125], [0.25, 0.25],
+          [0.375, 0.25], [0.375, 0.375]
+        ];
+      }
+      
+      filterSequence.forEach(step => {
+        let nextLength = findNextSize(lengthInput, reverse ? -step[0] / 0.125 : step[0] / 0.125);
+        let nextWidth = findNextSize(widthInput, reverse ? -step[1] / 0.125 : step[1] / 0.125);
+        
+        if (reverse) {
+          // For smaller sizes, find any that are smaller up to the next step size
+          let nextStepLength = findNextSize(lengthInput, -(step[0] + 0.125) / 0.125);
+          let nextStepWidth = findNextSize(widthInput, -(step[1] + 0.125) / 0.125);
+          
+          const newResults = filterResults(data,
+            l => l >= nextStepLength && l <= nextLength,
+            w => w >= nextStepWidth && w <= nextWidth,
+            d => depthRange(d));
+          
+          // Only add results we haven't seen before
+          newResults.forEach(row => {
+            if (!foundIds.has(row[ID_INDEX])) {
+              results.push(row);
+              foundIds.add(row[ID_INDEX]);
+            }
+          });
+        } else {
+          const newResults = filterResults(data, 
+            l => l === nextLength,
+            w => w === nextWidth,
+            d => d >= depthInput && d <= expandDepth);
+            
+          // Only add results we haven't seen before
+          newResults.forEach(row => {
+            if (!foundIds.has(row[ID_INDEX])) {
+              results.push(row);
+              foundIds.add(row[ID_INDEX]);
+            }
+          });
+        }
+      });
+      
+      return results;
+    }
+
+    // For reverse mode (smaller sizes), try exact depth first, then expand if no results
+    if (reverse) {
+      // Try exact depth match first
+      results = applyFilters(d => d === depthInput);
+      
+      // If no results found or less than maxSmallerResults, expand depth up to 2" greater
+      if (results.length < maxSmallerResults) {
+        const expandedResults = applyFilters(d => d > depthInput && d <= depthInput + 2);
+        // Add any new results we found with expanded depth
+        expandedResults.forEach(row => {
+          if (!previousIds.has(row[ID_INDEX]) && results.length < maxSmallerResults) {
+            results.push(row);
+          }
+        });
+      }
+    } else {
+      results = applyFilters(d => d >= depthInput && d <= expandDepth);
+    }
 
     // Filter out any results that appear in previousResults for reverse mode
     if (reverse) {
